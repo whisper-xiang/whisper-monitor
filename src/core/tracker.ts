@@ -16,27 +16,46 @@ export class Tracker {
     data: ReportData<any>,
     customOptions?: Partial<CoreOptions["reportOptions"]>
   ): Promise<any> {
-    // 合并自定义上报配置与全局配置
-    const reportOptions = {
-      ...this.options.reportOptions,
-      ...customOptions,
-    };
+    return new Promise((resolve, reject) => {
+      // 合并自定义上报配置与全局配置
+      const reportOptions = {
+        ...this.options.reportOptions,
+        ...customOptions,
+      };
 
-    // 附加数据（如用户行为、时间戳等）
-    const reportData = this.attach(data);
+      // 附加数据（如用户行为、时间戳等）
+      const reportData = this.attach(data);
 
-    // 根据上报方式执行不同的逻辑
-    switch (reportOptions.method) {
-      case "fetch":
-        return this.reportWithFetch(reportData, reportOptions);
-      case "beacon":
-        return this.reportWithBeacon(reportData, reportOptions);
-      case "xhr":
-      default:
-        return this.reportWithXHR(reportData, reportOptions).catch((error) =>
-          console.error("XHR report failed:", error)
-        );
-    }
+      // 封装上报逻辑，使用 requestIdleCallback 延迟上报
+      const reportTask = () => {
+        switch (reportOptions.method) {
+          case "fetch":
+            this.reportWithFetch(reportData, reportOptions).then(
+              resolve,
+              reject
+            );
+            break;
+          case "beacon":
+            this.reportWithBeacon(reportData, reportOptions).then(
+              resolve,
+              reject
+            );
+            break;
+          case "xhr":
+          default:
+            this.reportWithXHR(reportData, reportOptions).then(resolve, reject);
+            break;
+        }
+      };
+
+      if (typeof requestIdleCallback === "function") {
+        // 如果浏览器支持 requestIdleCallback，使用它来延迟执行上报任务
+        requestIdleCallback(reportTask);
+      } else {
+        // 如果浏览器不支持 requestIdleCallback，直接执行上报任务
+        reportTask();
+      }
+    });
   }
 
   // 使用 XHR 方式上报

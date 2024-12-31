@@ -37,6 +37,16 @@ app.use(window.WhisperMonitor, {
     url: "http://localhost:8090/reportData",
     method: "xhr",
     payloadType: "json",
+    globalData: {
+      userInfo: {
+        name: "张三",
+        age: 18,
+      },
+      projectInfo: {
+        projectName: "项目A",
+        projectId: "123456",
+      },
+    },
   },
   plugins: [clickPlugin],
 });

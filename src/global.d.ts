@@ -1,6 +1,3 @@
-// src/global.d.ts
-
-// 扩展 Window 接口，添加自定义属性 deviceInfo
 declare global {
   interface Window {
     deviceInfo?: {
