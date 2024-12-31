@@ -50,8 +50,9 @@ export class Core {
     }
   }
 }
-// export init method, as entry point
-const init = (options: CoreOptions) => {
+
+// 导出初始化方法
+export const init = (options: CoreOptions) => {
   const client = new Core(options);
   const { plugins = [] } = client.options;
 
@@ -59,9 +60,8 @@ const init = (options: CoreOptions) => {
   return client;
 };
 
-// if install by install method, then as Vue plugin
-const install = (VueOrApp: any, options: CoreOptions) => {
-  // 1. init core, register all plugins
+// Vue 插件形式接入
+export const install = (VueOrApp: any, options: CoreOptions) => {
   const core = init(options);
 
   const originalErrorHandler = VueOrApp.config.errorHandler;
@@ -74,14 +74,12 @@ const install = (VueOrApp: any, options: CoreOptions) => {
     }
   };
 
-  // 2. bind tracker to Vue instance
+  // Vue 3 与 Vue 2 的不同处理
   const isVue3 = VueOrApp.version && VueOrApp.version.startsWith("3");
 
   if (isVue3) {
-    // Vue 3 逻辑
     VueOrApp.config.globalProperties.$tracker = core.tracker;
   } else {
-    // Vue 2 逻辑
     VueOrApp.prototype.$tracker = core.tracker;
   }
 };
@@ -90,12 +88,8 @@ export const plugins = {
   clickPlugin,
 };
 
-// 只使用具名导出
-const whisperMonitor = {
+window.WhisperMonitor = {
   install,
   init,
   plugins,
 };
-
-// 使用 module.exports 导出
-export default whisperMonitor;

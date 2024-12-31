@@ -5,18 +5,21 @@ import App from "./App.vue";
 import router from "./router";
 import ElementPlus from "element-plus";
 import "element-plus/dist/index.css";
+
 // import whisperMonitor, { plugins } from "../../../v2/dist/bundle.js";
 
-import whisperMonitor, { plugins } from "../../../v2/src/index";
+// import whisperMonitor, { plugins } from "../../../v2/src/index";
 
-const { clickPlugin } = plugins;
+// const { clickPlugin } = plugins;
 
-console.log(plugins);
+// console.log(plugins);
 
 // import { clickPlugin, XHRPlugin } from "../../dist/plugins";
 // import plugin from "./plugins/MyPlugin";
 
 const app = createApp(App);
+
+console.log(window.WhisperMonitor, "fuck");
 
 // app.config.errorHandler = (err, vm, info) => {
 //   console.log(err, vm, info);
@@ -27,8 +30,9 @@ const app = createApp(App);
 // app.use(whisperCore, {
 //   dsn: "http://localhost:8090",
 // });
+const { clickPlugin } = window.WhisperMonitor?.plugins ?? {};
 app.use(router);
-app.use(whisperMonitor, {
+app.use(window.WhisperMonitor, {
   reportOptions: {
     url: "http://localhost:8090/reportData",
     method: "xhr",

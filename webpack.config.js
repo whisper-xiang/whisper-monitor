@@ -3,13 +3,11 @@ const path = require("path");
 module.exports = {
   entry: "./src/index.ts", // 入口文件
   output: {
-    filename: "bundle.js", // 输出的文件名
+    filename: "whisperMonitor.js", // 输出的文件名
     path: path.resolve(__dirname, "dist"), // 输出的路径
-    // 设置模块类型为 ES模块，确保可以使用 `import` 引入
-    libraryTarget: "module", // 输出为 ES 模块格式
-    environment: {
-      module: true, // 支持 ES 模块
-    },
+    library: "WhisperMonitor", // 将库挂载到全局变量上
+    libraryTarget: "umd", // 输出为 UMD 格式，支持 CommonJS、AMD 和全局变量
+    globalObject: "this", // 在浏览器和 Node 环境下都适用
   },
   resolve: {
     alias: {
@@ -26,7 +24,5 @@ module.exports = {
       },
     ],
   },
-  experiments: {
-    outputModule: true, // 开启模块输出实验，支持 ES 模块输出
-  },
+  mode: "production", // 生产环境打包
 };

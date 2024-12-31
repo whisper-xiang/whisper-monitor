@@ -12,6 +12,7 @@ declare global {
       device: string;
       deviceType: string;
     };
+    WhisperMonitor?: any;
   }
 }
 

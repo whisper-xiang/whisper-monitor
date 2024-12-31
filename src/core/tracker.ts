@@ -1,5 +1,6 @@
 import { CoreOptions, ReportData, EventTypes } from "@/types";
 import { Breadcrumb } from "./breadcrumb";
+import { _global } from "@/utils/global";
 
 export class Tracker {
   private options: CoreOptions; // 合并后的全局配置
@@ -148,6 +149,7 @@ export class Tracker {
     Object.assign(data, this.options?.reportOptions?.globalData || {});
     // 附加时间戳
     data.timestamp = Date.now();
+    data.deviceInfo = _global.deviceInfo;
 
     // TODO: 其他附加数据逻辑
     return data;
