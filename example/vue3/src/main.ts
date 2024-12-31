@@ -5,8 +5,15 @@ import App from "./App.vue";
 import router from "./router";
 import ElementPlus from "element-plus";
 import "element-plus/dist/index.css";
-import whisperCore from "../../../packages/core";
-import { clickPlugin, XHRPlugin } from "../../../packages/core/src/plugins";
+// import whisperMonitor, { plugins } from "../../../v2/dist/bundle.js";
+
+import whisperMonitor, { plugins } from "../../../v2/src/index";
+
+const { clickPlugin } = plugins;
+
+console.log(plugins);
+
+// import { clickPlugin, XHRPlugin } from "../../dist/plugins";
 // import plugin from "./plugins/MyPlugin";
 
 const app = createApp(App);
@@ -21,13 +28,13 @@ const app = createApp(App);
 //   dsn: "http://localhost:8090",
 // });
 app.use(router);
-app.use(whisperCore, {
+app.use(whisperMonitor, {
   reportOptions: {
-    url: "http://localhost:8090/reportData", // 上报接口配置信息
+    url: "http://localhost:8090/reportData",
     method: "xhr",
     payloadType: "json",
   },
-  plugins: [clickPlugin, XHRPlugin],
+  plugins: [clickPlugin],
 });
 
 // app.use(plugin, { message: "Custom Plugin Initialized!" });
