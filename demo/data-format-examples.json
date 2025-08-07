@@ -1,0 +1,489 @@
+{
+  "description": "Whisper Monitor 数据上报格式示例",
+  "examples": {
+    "error_js": {
+      "description": "JavaScript运行时错误示例",
+      "data": {
+        "type": "ERROR",
+        "category": "JS_ERROR",
+        "message": "Cannot read property 'someMethod' of null",
+        "filename": "https://example.com/js/app.js",
+        "lineno": 123,
+        "colno": 45,
+        "stack": [
+          {
+            "functionName": "handleClick",
+            "filename": "https://example.com/js/app.js",
+            "lineno": 123,
+            "colno": 45
+          },
+          {
+            "functionName": "addEventListener",
+            "filename": "https://example.com/js/app.js",
+            "lineno": 98,
+            "colno": 12
+          },
+          {
+            "functionName": "init",
+            "filename": "https://example.com/js/app.js",
+            "lineno": 15,
+            "colno": 8
+          }
+        ],
+        "timestamp": 1640995200000,
+        "url": "https://example.com/dashboard",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "breadcrumbs": [
+          {
+            "type": "navigation",
+            "message": "用户访问了页面",
+            "timestamp": 1640995100000,
+            "data": {
+              "from": "https://example.com/login",
+              "to": "https://example.com/dashboard"
+            }
+          },
+          {
+            "type": "click",
+            "message": "用户点击了按钮",
+            "timestamp": 1640995180000,
+            "data": {
+              "element": "button#submit",
+              "text": "提交"
+            }
+          }
+        ],
+        "deviceInfo": {
+          "platform": "Windows",
+          "browser": "Chrome",
+          "browserVersion": "96.0.4664.110",
+          "screenWidth": 1920,
+          "screenHeight": 1080,
+          "viewportWidth": 1200,
+          "viewportHeight": 800,
+          "language": "zh-CN",
+          "timezone": "Asia/Shanghai"
+        },
+        "userId": "user_12345",
+        "sessionId": "session_abcdef",
+        "projectId": "project_demo",
+        "version": "1.2.3",
+        "environment": "production",
+        "tags": {
+          "module": "dashboard",
+          "feature": "data_export"
+        },
+        "level": "error",
+        "sdkVersion": "2.0.0",
+        "traceId": "trace_xyz789",
+        "fingerprint": "js_error_null_property"
+      }
+    },
+    "error_resource": {
+      "description": "资源加载错误示例",
+      "data": {
+        "type": "ERROR",
+        "category": "RESOURCE_ERROR",
+        "message": "Failed to load img: https://example.com/images/logo.png",
+        "resource": {
+          "tagName": "img",
+          "url": "https://example.com/images/logo.png",
+          "outerHTML": "<img src=\"https://example.com/images/logo.png\" alt=\"Logo\" class=\"header-logo\">"
+        },
+        "timestamp": 1640995300000,
+        "url": "https://example.com/home",
+        "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15",
+        "deviceInfo": {
+          "platform": "iOS",
+          "browser": "Safari",
+          "browserVersion": "15.0",
+          "screenWidth": 375,
+          "screenHeight": 812,
+          "viewportWidth": 375,
+          "viewportHeight": 667,
+          "language": "zh-CN",
+          "timezone": "Asia/Shanghai"
+        },
+        "userId": "user_67890",
+        "sessionId": "session_ghijkl",
+        "projectId": "project_demo",
+        "version": "1.2.3",
+        "environment": "production",
+        "level": "warning",
+        "sdkVersion": "2.0.0",
+        "fingerprint": "resource_error_logo_png"
+      }
+    },
+    "error_promise": {
+      "description": "Promise未捕获错误示例",
+      "data": {
+        "type": "ERROR",
+        "category": "PROMISE_ERROR",
+        "message": "Network request failed",
+        "stack": [
+          {
+            "functionName": "fetchUserData",
+            "filename": "https://example.com/js/api.js",
+            "lineno": 45,
+            "colno": 12
+          },
+          {
+            "functionName": "loadDashboard",
+            "filename": "https://example.com/js/dashboard.js",
+            "lineno": 23,
+            "colno": 8
+          }
+        ],
+        "timestamp": 1640995400000,
+        "url": "https://example.com/dashboard",
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+        "breadcrumbs": [
+          {
+            "type": "request",
+            "message": "发起API请求",
+            "timestamp": 1640995390000,
+            "data": {
+              "method": "GET",
+              "url": "/api/user/profile",
+              "status": 500
+            }
+          }
+        ],
+        "deviceInfo": {
+          "platform": "macOS",
+          "browser": "Chrome",
+          "browserVersion": "96.0.4664.110",
+          "screenWidth": 2560,
+          "screenHeight": 1440,
+          "viewportWidth": 1440,
+          "viewportHeight": 900,
+          "language": "zh-CN",
+          "timezone": "Asia/Shanghai"
+        },
+        "userId": "user_11111",
+        "sessionId": "session_mnopqr",
+        "projectId": "project_demo",
+        "version": "1.2.3",
+        "environment": "production",
+        "level": "error",
+        "sdkVersion": "2.0.0",
+        "fingerprint": "promise_error_network_request"
+      }
+    },
+    "performance_navigation": {
+      "description": "页面导航性能示例",
+      "data": {
+        "type": "PERFORMANCE",
+        "category": "NAVIGATION",
+        "metrics": {
+          "fcp": 1200.5,
+          "lcp": 2100.8,
+          "fid": 45.2,
+          "cls": 0.15,
+          "ttfb": 280.3,
+          "domContentLoaded": 1800.2,
+          "loadComplete": 3200.7
+        },
+        "timestamp": 1640995500000,
+        "url": "https://example.com/dashboard",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "deviceInfo": {
+          "platform": "Windows",
+          "browser": "Chrome",
+          "browserVersion": "96.0.4664.110",
+          "screenWidth": 1920,
+          "screenHeight": 1080,
+          "viewportWidth": 1200,
+          "viewportHeight": 800,
+          "language": "zh-CN",
+          "timezone": "Asia/Shanghai"
+        },
+        "userId": "user_22222",
+        "sessionId": "session_stuvwx",
+        "projectId": "project_demo",
+        "version": "1.2.3",
+        "environment": "production",
+        "level": "info",
+        "sdkVersion": "2.0.0"
+      }
+    },
+    "performance_resource": {
+      "description": "资源加载性能示例",
+      "data": {
+        "type": "PERFORMANCE",
+        "category": "RESOURCE",
+        "resources": [
+          {
+            "name": "https://example.com/js/app.js",
+            "type": "script",
+            "duration": 150.2,
+            "size": 245760
+          },
+          {
+            "name": "https://example.com/css/style.css",
+            "type": "stylesheet",
+            "duration": 89.5,
+            "size": 51200
+          },
+          {
+            "name": "https://example.com/images/banner.jpg",
+            "type": "image",
+            "duration": 320.8,
+            "size": 1048576
+          }
+        ],
+        "timestamp": 1640995600000,
+        "url": "https://example.com/home",
+        "userAgent": "Mozilla/5.0 (iPad; CPU OS 15_0 like Mac OS X) AppleWebKit/605.1.15",
+        "deviceInfo": {
+          "platform": "iPadOS",
+          "browser": "Safari",
+          "browserVersion": "15.0",
+          "screenWidth": 1024,
+          "screenHeight": 768,
+          "viewportWidth": 1024,
+          "viewportHeight": 768,
+          "language": "zh-CN",
+          "timezone": "Asia/Shanghai"
+        },
+        "userId": "user_33333",
+        "sessionId": "session_yzabcd",
+        "projectId": "project_demo",
+        "version": "1.2.3",
+        "environment": "production",
+        "level": "info",
+        "sdkVersion": "2.0.0"
+      }
+    },
+    "behavior_click": {
+      "description": "用户点击行为示例",
+      "data": {
+        "type": "BEHAVIOR",
+        "category": "CLICK",
+        "action": "button_click",
+        "target": {
+          "tagName": "button",
+          "id": "submit-btn",
+          "className": "btn btn-primary",
+          "textContent": "提交订单",
+          "xpath": "/html/body/div[1]/form/button"
+        },
+        "position": {
+          "x": 150,
+          "y": 300
+        },
+        "timestamp": 1640995700000,
+        "url": "https://example.com/checkout",
+        "referrer": "https://example.com/cart",
+        "userAgent": "Mozilla/5.0 (Android 11; Mobile; rv:68.0) Gecko/68.0 Firefox/88.0",
+        "userId": "user_44444",
+        "sessionId": "session_efghij",
+        "projectId": "project_demo",
+        "version": "1.2.3",
+        "environment": "production",
+        "extra": {
+          "orderAmount": 299.99,
+          "itemCount": 3
+        },
+        "level": "info",
+        "sdkVersion": "2.0.0"
+      }
+    },
+    "behavior_navigation": {
+      "description": "页面导航行为示例",
+      "data": {
+        "type": "BEHAVIOR",
+        "category": "NAVIGATION",
+        "action": "page_view",
+        "timestamp": 1640995800000,
+        "url": "https://example.com/product/12345",
+        "referrer": "https://example.com/category/electronics",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:95.0) Gecko/20100101 Firefox/95.0",
+        "userId": "user_55555",
+        "sessionId": "session_klmnop",
+        "projectId": "project_demo",
+        "version": "1.2.3",
+        "environment": "production",
+        "extra": {
+          "productId": "12345",
+          "categoryId": "electronics",
+          "loadTime": 1.2
+        },
+        "level": "info",
+        "sdkVersion": "2.0.0"
+      }
+    },
+    "api_xhr": {
+      "description": "XHR请求监控示例",
+      "data": {
+        "type": "API",
+        "category": "XHR",
+        "method": "POST",
+        "url": "https://api.example.com/v1/users",
+        "status": 201,
+        "statusText": "Created",
+        "duration": 450.3,
+        "requestHeaders": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer token123",
+          "X-Requested-With": "XMLHttpRequest"
+        },
+        "responseHeaders": {
+          "Content-Type": "application/json",
+          "X-RateLimit-Remaining": "99"
+        },
+        "requestBody": "{\"name\":\"John Doe\",\"email\":\"john@example.com\"}",
+        "responseBody": "{\"id\":12345,\"name\":\"John Doe\",\"email\":\"john@example.com\",\"created_at\":\"2021-12-31T16:00:00Z\"}",
+        "timestamp": 1640995900000,
+        "pageUrl": "https://example.com/admin/users",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "userId": "admin_66666",
+        "sessionId": "session_qrstuv",
+        "projectId": "project_demo",
+        "version": "1.2.3",
+        "environment": "production",
+        "level": "info",
+        "sdkVersion": "2.0.0"
+      }
+    },
+    "api_fetch_error": {
+      "description": "Fetch请求错误示例",
+      "data": {
+        "type": "API",
+        "category": "FETCH",
+        "method": "GET",
+        "url": "https://api.example.com/v1/data",
+        "status": 500,
+        "statusText": "Internal Server Error",
+        "duration": 5000.0,
+        "requestHeaders": {
+          "Accept": "application/json",
+          "Authorization": "Bearer token456"
+        },
+        "responseHeaders": {
+          "Content-Type": "application/json",
+          "X-Error-Code": "DATABASE_CONNECTION_FAILED"
+        },
+        "responseBody": "{\"error\":\"Internal server error\",\"code\":500,\"message\":\"Database connection failed\"}",
+        "timestamp": 1640996000000,
+        "pageUrl": "https://example.com/dashboard",
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+        "userId": "user_77777",
+        "sessionId": "session_wxyzab",
+        "projectId": "project_demo",
+        "version": "1.2.3",
+        "environment": "production",
+        "level": "error",
+        "sdkVersion": "2.0.0"
+      }
+    },
+    "custom_business": {
+      "description": "自定义业务事件示例",
+      "data": {
+        "type": "CUSTOM",
+        "name": "order_completed",
+        "category": "business",
+        "value": 299.99,
+        "data": {
+          "orderId": "ORD-2021-12345",
+          "userId": "user_88888",
+          "items": [
+            {
+              "productId": "PROD-001",
+              "name": "智能手机",
+              "price": 199.99,
+              "quantity": 1
+            },
+            {
+              "productId": "PROD-002",
+              "name": "手机壳",
+              "price": 29.99,
+              "quantity": 1
+            }
+          ],
+          "paymentMethod": "credit_card",
+          "shippingAddress": {
+            "city": "北京",
+            "district": "朝阳区"
+          }
+        },
+        "timestamp": 1640996100000,
+        "url": "https://example.com/order/success",
+        "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15",
+        "userId": "user_88888",
+        "sessionId": "session_cdefgh",
+        "projectId": "project_demo",
+        "version": "1.2.3",
+        "environment": "production",
+        "tags": {
+          "campaign": "double11",
+          "channel": "mobile_app",
+          "segment": "premium_user"
+        },
+        "level": "info",
+        "sdkVersion": "2.0.0",
+        "traceId": "trace_order_abc123"
+      }
+    },
+    "custom_feature": {
+      "description": "自定义功能使用事件示例",
+      "data": {
+        "type": "CUSTOM",
+        "name": "feature_usage",
+        "category": "feature",
+        "data": {
+          "featureName": "ai_recommendation",
+          "action": "view",
+          "duration": 15000,
+          "interactionCount": 3,
+          "recommendationIds": ["rec_001", "rec_002", "rec_003"],
+          "clickedRecommendation": "rec_002"
+        },
+        "timestamp": 1640996200000,
+        "url": "https://example.com/recommendations",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "userId": "user_99999",
+        "sessionId": "session_ijklmn",
+        "projectId": "project_demo",
+        "version": "1.2.3",
+        "environment": "production",
+        "tags": {
+          "ab_test": "recommendation_v2",
+          "user_tier": "gold"
+        },
+        "level": "info",
+        "sdkVersion": "2.0.0"
+      }
+    }
+  },
+  "batch_format": {
+    "description": "批量上报格式",
+    "data": {
+      "batch": true,
+      "batchId": "batch_20211231_001",
+      "timestamp": 1640996300000,
+      "items": [
+        {
+          "type": "BEHAVIOR",
+          "category": "CLICK",
+          "action": "button_click",
+          "timestamp": 1640996250000
+        },
+        {
+          "type": "ERROR",
+          "category": "JS_ERROR",
+          "message": "TypeError: Cannot read property",
+          "timestamp": 1640996280000
+        }
+      ],
+      "metadata": {
+        "userId": "user_batch",
+        "sessionId": "session_batch",
+        "projectId": "project_demo",
+        "version": "1.2.3",
+        "environment": "production",
+        "sdkVersion": "2.0.0"
+      }
+    }
+  }
+}

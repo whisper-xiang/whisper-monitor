@@ -1,0 +1,25 @@
+{
+  "name": "whisper-monitor-error-demo",
+  "version": "1.0.0",
+  "description": "JavaScript异常监控Demo",
+  "main": "error-server.js",
+  "scripts": {
+    "start": "node error-server.js",
+    "dev": "nodemon error-server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": [
+    "error-monitoring",
+    "javascript",
+    "frontend",
+    "demo"
+  ],
+  "author": "",
+  "license": "MIT"
+}

@@ -2,7 +2,7 @@ import { validateOption } from "@/utils";
 import { Plugin, CoreOptions } from "@/types";
 export class Options {
   reportOptions: CoreOptions["reportOptions"] = {
-    url: "http://localhost:8090/reportData", // 上报接口地址
+    url: "", // 上报接口地址
     method: "xhr", // 上报接口请求方法
     headers: {}, // 上报接口请求头
     payloadType: "json", // 上报接口请求体格式

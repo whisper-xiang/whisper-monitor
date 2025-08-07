@@ -1,7 +1,7 @@
 import { Breadcrumb, eventBus, Tracker, Options } from "./core";
 import { Plugin, CoreOptions, EventTypes } from "@/types";
 import { isValidPlugin } from "@/utils";
-import { clickPlugin } from "./plugins";
+import { clickPlugin, jsErrorPlugin } from "./plugins";
 
 export class Core {
   public readonly breadcrumb: Breadcrumb;
@@ -86,6 +86,7 @@ export const install = (VueOrApp: any, options: CoreOptions) => {
 
 export const plugins = {
   clickPlugin,
+  jsErrorPlugin,
 };
 
 window.WhisperMonitor = {

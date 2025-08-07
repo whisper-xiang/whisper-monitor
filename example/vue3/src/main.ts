@@ -8,29 +8,19 @@ import "element-plus/dist/index.css";
 
 // import whisperMonitor, { plugins } from "../../../v2/dist/bundle.js";
 
-// import whisperMonitor, { plugins } from "../../../v2/src/index";
-
 // const { clickPlugin } = plugins;
 
 // console.log(plugins);
 
-// import { clickPlugin, XHRPlugin } from "../../dist/plugins";
-// import plugin from "./plugins/MyPlugin";
+import "../../../dist/whisperMonitor.js";
 
 const app = createApp(App);
-
-console.log(window.WhisperMonitor, "fuck");
 
 // app.config.errorHandler = (err, vm, info) => {
 //   console.log(err, vm, info);
 // };
 
-// whisperCore.use(screenRecord, {});
-
-// app.use(whisperCore, {
-//   dsn: "http://localhost:8090",
-// });
-const { clickPlugin } = window.WhisperMonitor?.plugins ?? {};
+const { clickPlugin, jsErrorPlugin } = window.WhisperMonitor?.plugins ?? {};
 app.use(router);
 app.use(window.WhisperMonitor, {
   reportOptions: {
@@ -48,7 +38,7 @@ app.use(window.WhisperMonitor, {
       },
     },
   },
-  plugins: [clickPlugin],
+  plugins: [clickPlugin, jsErrorPlugin],
 });
 
 // app.use(plugin, { message: "Custom Plugin Initialized!" });

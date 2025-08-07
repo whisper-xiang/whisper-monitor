@@ -1,4 +1,4 @@
-import { EventTypes, ErrorTypes, CollectedType, Plugin } from "@whisper/types";
+import { EventTypes, ErrorTypes, CollectedType, Plugin } from "@/types";
 import { parseStackFrames } from "./helpers";
 
 interface ResourceTarget {
@@ -13,6 +13,8 @@ const jsErrorPlugin: Plugin = {
     window.addEventListener(
       "error",
       (e: ErrorEvent) => {
+        console.log(e, "jsErrorPluginjsErrorPluginjsErrorPlugin");
+
         // preventDefault 会导致报错停止流转
         // e.preventDefault();
         emit({
@@ -52,6 +54,7 @@ const jsErrorPlugin: Plugin = {
 
     // 脚本错误
     const { message: msg, error } = data;
+    console.log(data, collectedData, "datadatadata");
     this.breadcrumb.unshift({
       type: type,
       message: error?.message || msg,

@@ -1,0 +1,545 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://whisper-monitor.com/schemas/data-format.json",
+  "title": "Whisper Monitor Data Format Schema",
+  "description": "JSON Schema for Whisper Monitor data reporting format validation",
+  "type": "object",
+  "definitions": {
+    "timestamp": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Unix timestamp in milliseconds"
+    },
+    "url": {
+      "type": "string",
+      "format": "uri",
+      "description": "Valid URL"
+    },
+    "userAgent": {
+      "type": "string",
+      "minLength": 1,
+      "description": "User agent string"
+    },
+    "deviceInfo": {
+      "type": "object",
+      "properties": {
+        "platform": {
+          "type": "string",
+          "enum": ["Windows", "macOS", "Linux", "iOS", "Android", "iPadOS"]
+        },
+        "browser": {
+          "type": "string",
+          "enum": ["Chrome", "Firefox", "Safari", "Edge", "Opera", "IE", "Other"]
+        },
+        "browserVersion": {
+          "type": "string"
+        },
+        "screenWidth": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "screenHeight": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "viewportWidth": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "viewportHeight": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "language": {
+          "type": "string",
+          "pattern": "^[a-z]{2}(-[A-Z]{2})?$"
+        },
+        "timezone": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "breadcrumb": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["click", "navigation", "request", "console", "error", "custom"]
+        },
+        "message": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "timestamp": {
+          "$ref": "#/definitions/timestamp"
+        },
+        "data": {
+          "type": "object"
+        }
+      },
+      "required": ["type", "message", "timestamp"],
+      "additionalProperties": false
+    },
+    "stackFrame": {
+      "type": "object",
+      "properties": {
+        "functionName": {
+          "type": "string"
+        },
+        "filename": {
+          "type": "string"
+        },
+        "lineno": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "colno": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": ["functionName", "filename", "lineno", "colno"],
+      "additionalProperties": false
+    },
+    "commonFields": {
+      "type": "object",
+      "properties": {
+        "timestamp": {
+          "$ref": "#/definitions/timestamp"
+        },
+        "url": {
+          "$ref": "#/definitions/url"
+        },
+        "userAgent": {
+          "$ref": "#/definitions/userAgent"
+        },
+        "deviceInfo": {
+          "$ref": "#/definitions/deviceInfo"
+        },
+        "userId": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "sessionId": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "projectId": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9]+)*$"
+        },
+        "environment": {
+          "type": "string",
+          "enum": ["development", "staging", "production"]
+        },
+        "level": {
+          "type": "string",
+          "enum": ["debug", "info", "warning", "error", "fatal"]
+        },
+        "sdkVersion": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9]+)*$"
+        },
+        "traceId": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "spanId": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "fingerprint": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "tags": {
+          "type": "object",
+          "patternProperties": {
+            "^[a-zA-Z_][a-zA-Z0-9_]*$": {
+              "type": ["string", "number", "boolean"]
+            }
+          },
+          "additionalProperties": false
+        },
+        "extra": {
+          "type": "object"
+        }
+      },
+      "required": ["timestamp", "url", "userAgent", "projectId", "version", "environment"]
+    }
+  },
+  "anyOf": [
+    {
+      "title": "Error Report",
+      "allOf": [
+        {
+          "$ref": "#/definitions/commonFields"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "ERROR"
+            },
+            "category": {
+              "type": "string",
+              "enum": ["JS_ERROR", "RESOURCE_ERROR", "PROMISE_ERROR", "NETWORK_ERROR", "CUSTOM_ERROR"]
+            },
+            "message": {
+              "type": "string",
+              "maxLength": 1000
+            },
+            "filename": {
+              "type": "string"
+            },
+            "lineno": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "colno": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "stack": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/stackFrame"
+              },
+              "maxItems": 20
+            },
+            "resource": {
+              "type": "object",
+              "properties": {
+                "tagName": {
+                  "type": "string"
+                },
+                "url": {
+                  "$ref": "#/definitions/url"
+                },
+                "outerHTML": {
+                  "type": "string",
+                  "maxLength": 2000
+                }
+              },
+              "required": ["tagName", "url"],
+              "additionalProperties": false
+            },
+            "breadcrumbs": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/breadcrumb"
+              },
+              "maxItems": 20
+            }
+          },
+          "required": ["type", "category", "message"],
+          "additionalProperties": false
+        }
+      ]
+    },
+    {
+      "title": "Performance Report",
+      "allOf": [
+        {
+          "$ref": "#/definitions/commonFields"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "PERFORMANCE"
+            },
+            "category": {
+              "type": "string",
+              "enum": ["NAVIGATION", "RESOURCE", "VITALS", "LONG_TASK"]
+            },
+            "metrics": {
+              "type": "object",
+              "properties": {
+                "fcp": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "lcp": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "fid": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "cls": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "ttfb": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "domContentLoaded": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "loadComplete": {
+                  "type": "number",
+                  "minimum": 0
+                }
+              },
+              "additionalProperties": false
+            },
+            "resources": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "duration": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "size": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": ["name", "type", "duration"],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": ["type", "category"],
+          "additionalProperties": false
+        }
+      ]
+    },
+    {
+      "title": "Behavior Report",
+      "allOf": [
+        {
+          "$ref": "#/definitions/commonFields"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "BEHAVIOR"
+            },
+            "category": {
+              "type": "string",
+              "enum": ["CLICK", "NAVIGATION", "SCROLL", "INPUT", "CUSTOM"]
+            },
+            "action": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "target": {
+              "type": "object",
+              "properties": {
+                "tagName": {
+                  "type": "string"
+                },
+                "id": {
+                  "type": "string"
+                },
+                "className": {
+                  "type": "string"
+                },
+                "textContent": {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                "xpath": {
+                  "type": "string"
+                }
+              },
+              "required": ["tagName"],
+              "additionalProperties": false
+            },
+            "position": {
+              "type": "object",
+              "properties": {
+                "x": {
+                  "type": "integer"
+                },
+                "y": {
+                  "type": "integer"
+                }
+              },
+              "required": ["x", "y"],
+              "additionalProperties": false
+            },
+            "referrer": {
+              "$ref": "#/definitions/url"
+            }
+          },
+          "required": ["type", "category", "action"],
+          "additionalProperties": false
+        }
+      ]
+    },
+    {
+      "title": "API Report",
+      "allOf": [
+        {
+          "$ref": "#/definitions/commonFields"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "API"
+            },
+            "category": {
+              "type": "string",
+              "enum": ["XHR", "FETCH", "WEBSOCKET"]
+            },
+            "method": {
+              "type": "string",
+              "enum": ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"]
+            },
+            "url": {
+              "$ref": "#/definitions/url"
+            },
+            "status": {
+              "type": "integer",
+              "minimum": 100,
+              "maximum": 599
+            },
+            "statusText": {
+              "type": "string"
+            },
+            "duration": {
+              "type": "number",
+              "minimum": 0
+            },
+            "requestHeaders": {
+              "type": "object",
+              "patternProperties": {
+                "^[a-zA-Z-]+$": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            },
+            "responseHeaders": {
+              "type": "object",
+              "patternProperties": {
+                "^[a-zA-Z-]+$": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            },
+            "requestBody": {
+              "type": "string",
+              "maxLength": 10000
+            },
+            "responseBody": {
+              "type": "string",
+              "maxLength": 10000
+            },
+            "pageUrl": {
+              "$ref": "#/definitions/url"
+            }
+          },
+          "required": ["type", "category", "method", "url", "status", "duration"],
+          "additionalProperties": false
+        }
+      ]
+    },
+    {
+      "title": "Custom Report",
+      "allOf": [
+        {
+          "$ref": "#/definitions/commonFields"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "CUSTOM"
+            },
+            "name": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "category": {
+              "type": "string",
+              "maxLength": 50
+            },
+            "value": {
+              "type": "number"
+            },
+            "data": {
+              "type": "object"
+            }
+          },
+          "required": ["type", "name"],
+          "additionalProperties": false
+        }
+      ]
+    },
+    {
+      "title": "Batch Report",
+      "type": "object",
+      "properties": {
+        "batch": {
+          "const": true
+        },
+        "batchId": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "timestamp": {
+          "$ref": "#/definitions/timestamp"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#"
+          },
+          "minItems": 1,
+          "maxItems": 100
+        },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "userId": {
+              "type": "string"
+            },
+            "sessionId": {
+              "type": "string"
+            },
+            "projectId": {
+              "type": "string"
+            },
+            "version": {
+              "type": "string"
+            },
+            "environment": {
+              "type": "string",
+              "enum": ["development", "staging", "production"]
+            },
+            "sdkVersion": {
+              "type": "string"
+            }
+          },
+          "required": ["projectId", "version", "environment"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["batch", "batchId", "timestamp", "items", "metadata"],
+      "additionalProperties": false
+    }
+  ]
+}

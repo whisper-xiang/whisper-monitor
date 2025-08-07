@@ -1,0 +1,638 @@
+{
+  "version": "2.0.0",
+  "description": "Whisper Monitor 数据上报格式规范",
+  "formats": {
+    "error": {
+      "description": "JavaScript错误上报格式",
+      "required": ["type", "category", "message", "timestamp", "url"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ERROR"],
+          "description": "事件类型"
+        },
+        "category": {
+          "type": "string",
+          "enum": ["JS_ERROR", "RESOURCE_ERROR", "PROMISE_ERROR", "NETWORK_ERROR", "CUSTOM_ERROR"],
+          "description": "错误分类"
+        },
+        "message": {
+          "type": "string",
+          "description": "错误消息",
+          "maxLength": 1000
+        },
+        "filename": {
+          "type": "string",
+          "description": "出错文件路径",
+          "optional": true
+        },
+        "lineno": {
+          "type": "integer",
+          "description": "错误行号",
+          "optional": true,
+          "minimum": 0
+        },
+        "colno": {
+          "type": "integer",
+          "description": "错误列号",
+          "optional": true,
+          "minimum": 0
+        },
+        "stack": {
+          "type": "array",
+          "description": "错误堆栈信息",
+          "optional": true,
+          "items": {
+            "type": "object",
+            "properties": {
+              "functionName": {
+                "type": "string",
+                "description": "函数名"
+              },
+              "filename": {
+                "type": "string",
+                "description": "文件路径"
+              },
+              "lineno": {
+                "type": "integer",
+                "description": "行号"
+              },
+              "colno": {
+                "type": "integer",
+                "description": "列号"
+              }
+            }
+          }
+        },
+        "resource": {
+          "type": "object",
+          "description": "资源错误信息（仅资源错误时使用）",
+          "optional": true,
+          "properties": {
+            "tagName": {
+              "type": "string",
+              "description": "HTML标签名"
+            },
+            "url": {
+              "type": "string",
+              "description": "资源URL"
+            },
+            "outerHTML": {
+              "type": "string",
+              "description": "完整HTML标签"
+            }
+          }
+        },
+        "timestamp": {
+          "type": "integer",
+          "description": "时间戳（毫秒）"
+        },
+        "url": {
+          "type": "string",
+          "description": "当前页面URL"
+        },
+        "userAgent": {
+          "type": "string",
+          "description": "用户代理字符串"
+        },
+        "breadcrumbs": {
+          "type": "array",
+          "description": "用户行为面包屑",
+          "optional": true,
+          "maxItems": 20,
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["click", "navigation", "request", "console", "error", "custom"],
+                "description": "行为类型"
+              },
+              "message": {
+                "type": "string",
+                "description": "行为描述"
+              },
+              "timestamp": {
+                "type": "integer",
+                "description": "行为时间戳"
+              },
+              "data": {
+                "type": "object",
+                "description": "额外数据",
+                "optional": true
+              }
+            }
+          }
+        },
+        "deviceInfo": {
+          "type": "object",
+          "description": "设备信息",
+          "optional": true,
+          "properties": {
+            "platform": {
+              "type": "string",
+              "description": "操作系统平台"
+            },
+            "browser": {
+              "type": "string",
+              "description": "浏览器名称"
+            },
+            "browserVersion": {
+              "type": "string",
+              "description": "浏览器版本"
+            },
+            "screenWidth": {
+              "type": "integer",
+              "description": "屏幕宽度"
+            },
+            "screenHeight": {
+              "type": "integer",
+              "description": "屏幕高度"
+            },
+            "viewportWidth": {
+              "type": "integer",
+              "description": "视口宽度"
+            },
+            "viewportHeight": {
+              "type": "integer",
+              "description": "视口高度"
+            },
+            "language": {
+              "type": "string",
+              "description": "语言设置"
+            },
+            "timezone": {
+              "type": "string",
+              "description": "时区"
+            }
+          }
+        },
+        "userId": {
+          "type": "string",
+          "description": "用户ID",
+          "optional": true
+        },
+        "sessionId": {
+          "type": "string",
+          "description": "会话ID",
+          "optional": true
+        },
+        "projectId": {
+          "type": "string",
+          "description": "项目ID"
+        },
+        "version": {
+          "type": "string",
+          "description": "项目版本号"
+        },
+        "environment": {
+          "type": "string",
+          "enum": ["development", "staging", "production"],
+          "description": "环境标识"
+        },
+        "tags": {
+          "type": "object",
+          "description": "自定义标签",
+          "optional": true
+        },
+        "extra": {
+          "type": "object",
+          "description": "额外数据",
+          "optional": true
+        }
+      }
+    },
+    "performance": {
+      "description": "性能数据上报格式",
+      "required": ["type", "metrics", "timestamp", "url"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["PERFORMANCE"],
+          "description": "事件类型"
+        },
+        "category": {
+          "type": "string",
+          "enum": ["NAVIGATION", "RESOURCE", "VITALS", "LONG_TASK"],
+          "description": "性能分类"
+        },
+        "metrics": {
+          "type": "object",
+          "description": "性能指标",
+          "properties": {
+            "fcp": {
+              "type": "number",
+              "description": "首次内容绘制时间",
+              "optional": true
+            },
+            "lcp": {
+              "type": "number",
+              "description": "最大内容绘制时间",
+              "optional": true
+            },
+            "fid": {
+              "type": "number",
+              "description": "首次输入延迟",
+              "optional": true
+            },
+            "cls": {
+              "type": "number",
+              "description": "累积布局偏移",
+              "optional": true
+            },
+            "ttfb": {
+              "type": "number",
+              "description": "首字节时间",
+              "optional": true
+            },
+            "domContentLoaded": {
+              "type": "number",
+              "description": "DOM内容加载完成时间",
+              "optional": true
+            },
+            "loadComplete": {
+              "type": "number",
+              "description": "页面完全加载时间",
+              "optional": true
+            }
+          }
+        },
+        "resources": {
+          "type": "array",
+          "description": "资源加载信息",
+          "optional": true,
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "资源名称"
+              },
+              "type": {
+                "type": "string",
+                "description": "资源类型"
+              },
+              "duration": {
+                "type": "number",
+                "description": "加载时长"
+              },
+              "size": {
+                "type": "integer",
+                "description": "资源大小",
+                "optional": true
+              }
+            }
+          }
+        },
+        "timestamp": {
+          "type": "integer",
+          "description": "时间戳（毫秒）"
+        },
+        "url": {
+          "type": "string",
+          "description": "当前页面URL"
+        },
+        "userAgent": {
+          "type": "string",
+          "description": "用户代理字符串"
+        },
+        "deviceInfo": {
+          "type": "object",
+          "description": "设备信息",
+          "optional": true
+        },
+        "userId": {
+          "type": "string",
+          "description": "用户ID",
+          "optional": true
+        },
+        "sessionId": {
+          "type": "string",
+          "description": "会话ID",
+          "optional": true
+        },
+        "projectId": {
+          "type": "string",
+          "description": "项目ID"
+        },
+        "version": {
+          "type": "string",
+          "description": "项目版本号"
+        },
+        "environment": {
+          "type": "string",
+          "enum": ["development", "staging", "production"],
+          "description": "环境标识"
+        }
+      }
+    },
+    "behavior": {
+      "description": "用户行为上报格式",
+      "required": ["type", "action", "timestamp", "url"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["BEHAVIOR"],
+          "description": "事件类型"
+        },
+        "category": {
+          "type": "string",
+          "enum": ["CLICK", "NAVIGATION", "SCROLL", "INPUT", "CUSTOM"],
+          "description": "行为分类"
+        },
+        "action": {
+          "type": "string",
+          "description": "具体行为动作"
+        },
+        "target": {
+          "type": "object",
+          "description": "目标元素信息",
+          "optional": true,
+          "properties": {
+            "tagName": {
+              "type": "string",
+              "description": "标签名"
+            },
+            "id": {
+              "type": "string",
+              "description": "元素ID",
+              "optional": true
+            },
+            "className": {
+              "type": "string",
+              "description": "CSS类名",
+              "optional": true
+            },
+            "textContent": {
+              "type": "string",
+              "description": "文本内容",
+              "optional": true,
+              "maxLength": 200
+            },
+            "xpath": {
+              "type": "string",
+              "description": "XPath路径",
+              "optional": true
+            }
+          }
+        },
+        "position": {
+          "type": "object",
+          "description": "位置信息",
+          "optional": true,
+          "properties": {
+            "x": {
+              "type": "integer",
+              "description": "X坐标"
+            },
+            "y": {
+              "type": "integer",
+              "description": "Y坐标"
+            }
+          }
+        },
+        "timestamp": {
+          "type": "integer",
+          "description": "时间戳（毫秒）"
+        },
+        "url": {
+          "type": "string",
+          "description": "当前页面URL"
+        },
+        "referrer": {
+          "type": "string",
+          "description": "来源页面URL",
+          "optional": true
+        },
+        "userAgent": {
+          "type": "string",
+          "description": "用户代理字符串"
+        },
+        "userId": {
+          "type": "string",
+          "description": "用户ID",
+          "optional": true
+        },
+        "sessionId": {
+          "type": "string",
+          "description": "会话ID",
+          "optional": true
+        },
+        "projectId": {
+          "type": "string",
+          "description": "项目ID"
+        },
+        "version": {
+          "type": "string",
+          "description": "项目版本号"
+        },
+        "environment": {
+          "type": "string",
+          "enum": ["development", "staging", "production"],
+          "description": "环境标识"
+        },
+        "extra": {
+          "type": "object",
+          "description": "额外数据",
+          "optional": true
+        }
+      }
+    },
+    "api": {
+      "description": "API请求监控上报格式",
+      "required": ["type", "method", "url", "status", "duration", "timestamp"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["API"],
+          "description": "事件类型"
+        },
+        "category": {
+          "type": "string",
+          "enum": ["XHR", "FETCH", "WEBSOCKET"],
+          "description": "请求分类"
+        },
+        "method": {
+          "type": "string",
+          "enum": ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"],
+          "description": "请求方法"
+        },
+        "url": {
+          "type": "string",
+          "description": "请求URL"
+        },
+        "status": {
+          "type": "integer",
+          "description": "HTTP状态码"
+        },
+        "statusText": {
+          "type": "string",
+          "description": "状态文本",
+          "optional": true
+        },
+        "duration": {
+          "type": "number",
+          "description": "请求耗时（毫秒）"
+        },
+        "requestHeaders": {
+          "type": "object",
+          "description": "请求头",
+          "optional": true
+        },
+        "responseHeaders": {
+          "type": "object",
+          "description": "响应头",
+          "optional": true
+        },
+        "requestBody": {
+          "type": "string",
+          "description": "请求体",
+          "optional": true,
+          "maxLength": 10000
+        },
+        "responseBody": {
+          "type": "string",
+          "description": "响应体",
+          "optional": true,
+          "maxLength": 10000
+        },
+        "timestamp": {
+          "type": "integer",
+          "description": "时间戳（毫秒）"
+        },
+        "pageUrl": {
+          "type": "string",
+          "description": "当前页面URL"
+        },
+        "userAgent": {
+          "type": "string",
+          "description": "用户代理字符串"
+        },
+        "userId": {
+          "type": "string",
+          "description": "用户ID",
+          "optional": true
+        },
+        "sessionId": {
+          "type": "string",
+          "description": "会话ID",
+          "optional": true
+        },
+        "projectId": {
+          "type": "string",
+          "description": "项目ID"
+        },
+        "version": {
+          "type": "string",
+          "description": "项目版本号"
+        },
+        "environment": {
+          "type": "string",
+          "enum": ["development", "staging", "production"],
+          "description": "环境标识"
+        }
+      }
+    },
+    "custom": {
+      "description": "自定义事件上报格式",
+      "required": ["type", "name", "timestamp"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["CUSTOM"],
+          "description": "事件类型"
+        },
+        "name": {
+          "type": "string",
+          "description": "自定义事件名称"
+        },
+        "category": {
+          "type": "string",
+          "description": "事件分类",
+          "optional": true
+        },
+        "value": {
+          "type": "number",
+          "description": "事件值",
+          "optional": true
+        },
+        "data": {
+          "type": "object",
+          "description": "事件数据",
+          "optional": true
+        },
+        "timestamp": {
+          "type": "integer",
+          "description": "时间戳（毫秒）"
+        },
+        "url": {
+          "type": "string",
+          "description": "当前页面URL"
+        },
+        "userAgent": {
+          "type": "string",
+          "description": "用户代理字符串"
+        },
+        "userId": {
+          "type": "string",
+          "description": "用户ID",
+          "optional": true
+        },
+        "sessionId": {
+          "type": "string",
+          "description": "会话ID",
+          "optional": true
+        },
+        "projectId": {
+          "type": "string",
+          "description": "项目ID"
+        },
+        "version": {
+          "type": "string",
+          "description": "项目版本号"
+        },
+        "environment": {
+          "type": "string",
+          "enum": ["development", "staging", "production"],
+          "description": "环境标识"
+        },
+        "tags": {
+          "type": "object",
+          "description": "自定义标签",
+          "optional": true
+        }
+      }
+    }
+  },
+  "common": {
+    "description": "所有格式共同的基础字段",
+    "properties": {
+      "sdkVersion": {
+        "type": "string",
+        "description": "SDK版本号",
+        "optional": true
+      },
+      "traceId": {
+        "type": "string",
+        "description": "链路追踪ID",
+        "optional": true
+      },
+      "spanId": {
+        "type": "string",
+        "description": "Span ID",
+        "optional": true
+      },
+      "fingerprint": {
+        "type": "string",
+        "description": "事件指纹（用于去重）",
+        "optional": true
+      },
+      "level": {
+        "type": "string",
+        "enum": ["debug", "info", "warning", "error", "fatal"],
+        "description": "事件级别",
+        "optional": true
+      }
+    }
+  }
+}

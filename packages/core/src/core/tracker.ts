@@ -30,6 +30,8 @@ export class Tracker {
         return this.reportWithFetch(reportData, reportOptions);
       case "beacon":
         return this.reportWithBeacon(reportData, reportOptions);
+      case "gif":
+        return this.reportWithGif(reportData, reportOptions);
       case "xhr":
       default:
         return this.reportWithXHR(reportData, reportOptions).catch((error) =>
@@ -120,6 +122,38 @@ export class Tracker {
     });
   }
 
+  // 使用 GIF 图片请求方式上报
+  private reportWithGif(
+    data: ReportData<any>,
+    options: CoreOptions["reportOptions"]
+  ): Promise<any> {
+    return new Promise((resolve) => {
+      // 创建图片对象
+      const img = new Image();
+
+      // 处理成功加载
+      img.onload = () => {
+        resolve(true);
+      };
+
+      // 处理加载失败
+      img.onerror = () => {
+        resolve(false);
+      };
+
+      // 构造查询字符串
+      const queryStr = this.toQueryString(data);
+
+      // 添加随机数防止缓存
+      const randomStr = Math.random().toString(36).slice(2, 15);
+
+      // 设置图片源
+      img.src = `${options.url}${
+        options.url.includes("?") ? "&" : "?"
+      }${queryStr}&r=${randomStr}`;
+    });
+  }
+
   // 将数据转换为 URL 编码的表单数据格式
   private toFormData(data: ReportData<any>): string {
     return Object.entries(data)
@@ -128,6 +162,29 @@ export class Tracker {
           encodeURIComponent(key) + "=" + encodeURIComponent(String(value))
       )
       .join("&");
+  }
+
+  // 将数据转换为查询字符串
+  private toQueryString(data: ReportData<any>): string {
+    const result: string[] = [];
+    const processValue = (key: string, value: any): void => {
+      if (value === null || value === undefined) {
+        return;
+      }
+      if (typeof value === "object") {
+        Object.keys(value).forEach((k) => {
+          processValue(`${key}[${k}]`, value[k]);
+        });
+      } else {
+        result.push(`${encodeURIComponent(key)}=${encodeURIComponent(value)}`);
+      }
+    };
+
+    Object.keys(data).forEach((key) => {
+      processValue(key, data[key]);
+    });
+
+    return result.join("&");
   }
 
   // 附加数据

@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript异常监控Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button.danger {
+            background: #dc3545;
+        }
+        button.danger:hover {
+            background: #c82333;
+        }
+        .log-container {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+        }
+        .log-item {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-left: 4px solid #007bff;
+            background: white;
+            border-radius: 3px;
+        }
+        .error-log {
+            border-left-color: #dc3545;
+        }
+        .timestamp {
+            color: #6c757d;
+            font-size: 12px;
+        }
+        .error-type {
+            font-weight: bold;
+            color: #dc3545;
+        }
+        .clear-btn {
+            background: #6c757d;
+            margin-top: 10px;
+        }
+        .clear-btn:hover {
+            background: #5a6268;
+        }
+        .data-format {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        pre {
+            background: white;
+            padding: 15px;
+            border-radius: 3px;
+            overflow-x: auto;
+            border: 1px solid #dee2e6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>JavaScript异常监控Demo</h1>
+        
+        <div class="button-group">
+            <button onclick="triggerSyntaxError()" class="danger">触发语法错误</button>
+            <button onclick="triggerReferenceError()" class="danger">触发引用错误</button>
+            <button onclick="triggerTypeError()" class="danger">触发类型错误</button>
+            <button onclick="triggerRangeError()" class="danger">触发范围错误</button>
+            <button onclick="triggerResourceError()" class="danger">触发资源错误</button>
+            <button onclick="triggerPromiseError()" class="danger">触发Promise错误</button>
+            <button onclick="triggerAsyncError()" class="danger">触发异步错误</button>
+            <button onclick="triggerCustomError()" class="danger">触发自定义错误</button>
+        </div>
+
+        <h3>监控日志</h3>
+        <div class="log-container" id="logContainer">
+            <div class="log-item">
+                <div class="timestamp">等待错误触发...</div>
+            </div>
+        </div>
+        <button class="clear-btn" onclick="clearLogs()">清空日志</button>
+
+        <div class="data-format">
+            <h3>数据上报格式说明</h3>
+            <pre id="dataFormat"></pre>
+        </div>
+    </div>
+
+    <script>
+        // 模拟whisper-monitor的错误监控
+        class ErrorMonitor {
+            constructor(options = {}) {
+                this.options = {
+                    reportUrl: options.reportUrl || 'http://localhost:3000/api/errors',
+                    maxStackFrames: options.maxStackFrames || 5,
+                    enableBreadcrumb: options.enableBreadcrumb !== false,
+                    globalData: options.globalData || {},
+                    ...options
+                };
+                this.breadcrumbs = [];
+                this.init();
+            }
+
+            init() {
+                // 监听JavaScript运行时错误
+                window.addEventListener('error', (event) => {
+                    this.handleError(event);
+                }, true);
+
+                // 监听Promise未捕获的错误
+                window.addEventListener('unhandledrejection', (event) => {
+                    this.handlePromiseError(event);
+                });
+
+                console.log('错误监控已初始化');
+            }
+
+            // 处理JavaScript错误
+            handleError(errorEvent) {
+                const { message, filename, lineno, colno, error, target } = errorEvent;
+                
+                // 检查是否为资源加载错误
+                if (target && target !== window) {
+                    this.handleResourceError(errorEvent);
+                    return;
+                }
+
+                // 处理JavaScript运行时错误
+                const errorData = {
+                    type: 'ERROR',
+                    category: 'JS_ERROR',
+                    message: error?.message || message,
+                    filename: filename,
+                    lineno: lineno,
+                    colno: colno,
+                    stack: this.parseStackFrames(error),
+                    timestamp: Date.now(),
+                    url: window.location.href,
+                    userAgent: navigator.userAgent,
+                    breadcrumbs: this.getBreadcrumbs(),
+                    ...this.options.globalData
+                };
+
+                this.addBreadcrumb({
+                    type: 'error',
+                    message: errorData.message,
+                    timestamp: errorData.timestamp
+                });
+
+                this.report(errorData);
+                this.displayLog(errorData, 'error');
+            }
+
+            // 处理Promise错误
+            handlePromiseError(promiseEvent) {
+                const { reason } = promiseEvent;
+                const error = reason instanceof Error ? reason : new Error(reason);
+                
+                const errorData = {
+                    type: 'PROMISE_ERROR',
+                    category: 'PROMISE_ERROR',
+                    message: error.message,
+                    stack: this.parseStackFrames(error),
+                    timestamp: Date.now(),
+                    url: window.location.href,
+                    userAgent: navigator.userAgent,
+                    breadcrumbs: this.getBreadcrumbs(),
+                    ...this.options.globalData
+                };
+
+                this.addBreadcrumb({
+                    type: 'promise_error',
+                    message: errorData.message,
+                    timestamp: errorData.timestamp
+                });
+
+                this.report(errorData);
+                this.displayLog(errorData, 'error');
+            }
+
+            // 处理资源加载错误
+            handleResourceError(errorEvent) {
+                const { target } = errorEvent;
+                const tagName = target.tagName?.toLowerCase();
+                const resourceUrl = target.src || target.href;
+
+                const errorData = {
+                    type: 'ERROR',
+                    category: 'RESOURCE_ERROR',
+                    message: `Failed to load ${tagName}: ${resourceUrl}`,
+                    resource: {
+                        tagName: tagName,
+                        url: resourceUrl,
+                        outerHTML: target.outerHTML
+                    },
+                    timestamp: Date.now(),
+                    url: window.location.href,
+                    userAgent: navigator.userAgent,
+                    breadcrumbs: this.getBreadcrumbs(),
+                    ...this.options.globalData
+                };
+
+                this.addBreadcrumb({
+                    type: 'resource_error',
+                    message: errorData.message,
+                    timestamp: errorData.timestamp
+                });
+
+                this.report(errorData);
+                this.displayLog(errorData, 'error');
+            }
+
+            // 解析错误堆栈
+            parseStackFrames(error) {
+                if (!error || !error.stack) return [];
+                
+                const stackLines = error.stack.split('\n').slice(1);
+                const frames = [];
+                const regex = /^\s*at (?:(.*?) ?\()?((?:file|https?|blob|chrome-extension|address|native|eval|webpack|<anonymous>|[-a-z]+:|.*bundle|\/).*?)(?::(\d+))?(?::(\d+))?\)?\s*$/i;
+                
+                for (let i = 0; i < Math.min(stackLines.length, this.options.maxStackFrames); i++) {
+                    const line = stackLines[i];
+                    const match = line.match(regex);
+                    if (match) {
+                        frames.push({
+                            functionName: match[1] || '<anonymous>',
+                            filename: match[2] || '<unknown>',
+                            lineno: parseInt(match[3], 10) || 0,
+                            colno: parseInt(match[4], 10) || 0
+                        });
+                    }
+                }
+                
+                return frames;
+            }
+
+            // 添加面包屑
+            addBreadcrumb(breadcrumb) {
+                if (!this.options.enableBreadcrumb) return;
+                
+                this.breadcrumbs.push(breadcrumb);
+                if (this.breadcrumbs.length > 20) {
+                    this.breadcrumbs.shift();
+                }
+            }
+
+            // 获取面包屑
+            getBreadcrumbs() {
+                return this.options.enableBreadcrumb ? this.breadcrumbs.slice() : [];
+            }
+
+            // 上报错误数据
+            report(errorData) {
+                // 模拟数据上报
+                console.log('上报错误数据:', errorData);
+                
+                // 实际项目中会发送到服务器
+                if (this.options.reportUrl) {
+                    fetch(this.options.reportUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(errorData)
+                    }).catch(err => {
+                        console.error('错误上报失败:', err);
+                    });
+                }
+            }
+
+            // 在页面上显示日志
+            displayLog(errorData, type = 'info') {
+                const logContainer = document.getElementById('logContainer');
+                const logItem = document.createElement('div');
+                logItem.className = `log-item ${type === 'error' ? 'error-log' : ''}`;
+                
+                logItem.innerHTML = `
+                    <div class="timestamp">${new Date(errorData.timestamp).toLocaleString()}</div>
+                    <div class="error-type">[${errorData.category || errorData.type}]</div>
+                    <div><strong>消息:</strong> ${errorData.message}</div>
+                    ${errorData.filename ? `<div><strong>文件:</strong> ${errorData.filename}:${errorData.lineno}:${errorData.colno}</div>` : ''}
+                    ${errorData.stack && errorData.stack.length > 0 ? `<div><strong>堆栈:</strong> ${errorData.stack.map(frame => `${frame.functionName} (${frame.filename}:${frame.lineno}:${frame.colno})`).join(' -> ')}</div>` : ''}
+                    <details style="margin-top: 10px;">
+                        <summary>完整数据</summary>
+                        <pre style="margin-top: 10px; font-size: 12px;">${JSON.stringify(errorData, null, 2)}</pre>
+                    </details>
+                `;
+                
+                logContainer.appendChild(logItem);
+                logContainer.scrollTop = logContainer.scrollHeight;
+            }
+        }
+
+        // 初始化错误监控
+        const monitor = new ErrorMonitor({
+            reportUrl: 'http://localhost:3000/api/errors',
+            maxStackFrames: 5,
+            enableBreadcrumb: true,
+            globalData: {
+                userId: '12345',
+                projectId: 'demo-project',
+                version: '1.0.0',
+                environment: 'development'
+            }
+        });
+
+        // 错误触发函数
+        function triggerSyntaxError() {
+            monitor.addBreadcrumb({
+                type: 'click',
+                message: '用户点击了触发语法错误按钮',
+                timestamp: Date.now()
+            });
+            // 通过eval触发语法错误
+            eval('var a = {');
+        }
+
+        function triggerReferenceError() {
+            monitor.addBreadcrumb({
+                type: 'click',
+                message: '用户点击了触发引用错误按钮',
+                timestamp: Date.now()
+            });
+            // 引用未定义的变量
+            console.log(undefinedVariable);
+        }
+
+        function triggerTypeError() {
+            monitor.addBreadcrumb({
+                type: 'click',
+                message: '用户点击了触发类型错误按钮',
+                timestamp: Date.now()
+            });
+            // 对null调用方法
+            const obj = null;
+            obj.someMethod();
+        }
+
+        function triggerRangeError() {
+            monitor.addBreadcrumb({
+                type: 'click',
+                message: '用户点击了触发范围错误按钮',
+                timestamp: Date.now()
+            });
+            // 创建超出范围的数组
+            const arr = new Array(-1);
+        }
+
+        function triggerResourceError() {
+            monitor.addBreadcrumb({
+                type: 'click',
+                message: '用户点击了触发资源错误按钮',
+                timestamp: Date.now()
+            });
+            // 加载不存在的图片
+            const img = new Image();
+            img.src = 'https://example.com/nonexistent-image.jpg';
+            document.body.appendChild(img);
+        }
+
+        function triggerPromiseError() {
+            monitor.addBreadcrumb({
+                type: 'click',
+                message: '用户点击了触发Promise错误按钮',
+                timestamp: Date.now()
+            });
+            // 未捕获的Promise错误
+            Promise.reject(new Error('未捕获的Promise错误'));
+        }
+
+        function triggerAsyncError() {
+            monitor.addBreadcrumb({
+                type: 'click',
+                message: '用户点击了触发异步错误按钮',
+                timestamp: Date.now()
+            });
+            // 异步函数中的错误
+            setTimeout(() => {
+                throw new Error('异步函数中的错误');
+            }, 100);
+        }
+
+        function triggerCustomError() {
+            monitor.addBreadcrumb({
+                type: 'click',
+                message: '用户点击了触发自定义错误按钮',
+                timestamp: Date.now()
+            });
+            // 自定义错误
+            throw new Error('这是一个自定义错误，用于测试错误监控功能');
+        }
+
+        function clearLogs() {
+            document.getElementById('logContainer').innerHTML = '<div class="log-item"><div class="timestamp">日志已清空</div></div>';
+        }
+
+        // 显示数据格式说明
+        document.getElementById('dataFormat').textContent = `
+{
+  "type": "ERROR",                    // 事件类型
+  "category": "JS_ERROR",             // 错误分类
+  "message": "错误消息",               // 错误消息
+  "filename": "文件路径",              // 出错文件
+  "lineno": 123,                      // 行号
+  "colno": 45,                        // 列号
+  "stack": [                          // 错误堆栈
+    {
+      "functionName": "函数名",
+      "filename": "文件路径",
+      "lineno": 123,
+      "colno": 45
+    }
+  ],
+  "timestamp": 1640995200000,         // 时间戳
+  "url": "页面URL",                   // 当前页面URL
+  "userAgent": "浏览器信息",           // 用户代理
+  "breadcrumbs": [                    // 面包屑记录
+    {
+      "type": "click",
+      "message": "用户行为描述",
+      "timestamp": 1640995200000
+    }
+  ],
+  "userId": "12345",                  // 用户ID
+  "projectId": "demo-project",        // 项目ID
+  "version": "1.0.0",                 // 版本号
+  "environment": "development"        // 环境
+}`;
+    </script>
+</body>
+</html>

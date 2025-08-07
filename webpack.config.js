@@ -7,7 +7,7 @@ module.exports = {
     path: path.resolve(__dirname, "dist"), // 输出的路径
     library: "WhisperMonitor", // 将库挂载到全局变量上
     libraryTarget: "umd", // 输出为 UMD 格式，支持 CommonJS、AMD 和全局变量
-    globalObject: "this", // 在浏览器和 Node 环境下都适用
+    globalObject: "typeof self !== 'undefined' ? self : this",
   },
   resolve: {
     alias: {
@@ -18,8 +18,13 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.ts$/, // 匹配 TypeScript 文件
-        use: "ts-loader", // 使用 ts-loader 来编译 TypeScript
+        test: /\.ts$/,
+        use: {
+          loader: "ts-loader",
+          options: {
+            transpileOnly: true, // ✅ 关闭类型检查
+          },
+        },
         exclude: /node_modules/,
       },
     ],
