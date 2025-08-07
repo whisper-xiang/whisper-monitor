@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 
-defineProps<{ msg: string }>();
+const tableData = ref([]);
 
 const codeErr = () => {
   getTableData()
@@ -23,8 +23,8 @@ const getTableData = () => {
     fetch(`http://localhost:8090/getErrorList`)
       .then((response) => response.json())
       .then((res) => {
-
-        // this.tableData = res.data;
+        console.log(res, "res");
+        tableData.value = res.data;
       });
   }, 500);
 };
@@ -93,6 +93,11 @@ const unhandledrejection = () => {
   <!-- <el-dialog title="性能监控" :visible.sync="visible">
     <div id="revert" ref="revert" style="width: 80vw; height: 10vh;"></div>
   </el-dialog> -->
+
+  <el-table :data="tableData" style="width: 100%">
+    <el-table-column prop="name" label="Name" />
+    <el-table-column prop="age" label="Age" />
+  </el-table>
 </template>
 
 <style scoped>

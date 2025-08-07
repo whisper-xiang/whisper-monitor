@@ -35,15 +35,14 @@ export class Core {
         continue;
       }
 
-      const callback = (...args: any) => {
+      const callback = async (...args: any) => {
         const pluginData = watcher.apply(this, args);
 
         if (!pluginData) {
           return;
         }
-        this.tracker.report(pluginData).then(() => {
-          console.log("上报成功", this.breadcrumb);
-        });
+        await this.tracker.report(pluginData);
+        console.log("上报成功", this.breadcrumb);
       };
 
       eventBus.on(pluginName, callback);
@@ -67,7 +66,10 @@ export const install = (VueOrApp: any, options: CoreOptions) => {
   const originalErrorHandler = VueOrApp.config.errorHandler;
 
   VueOrApp.config.errorHandler = (err: Error, vm: any, info: string) => {
-    eventBus.emit("jsErrorPlugin", { type: EventTypes.ERROR, data: err });
+    eventBus.emit("jsErrorPlugin", {
+      type: EventTypes.ERROR,
+      data: err,
+    });
 
     if (originalErrorHandler) {
       originalErrorHandler.call(this, err, vm, info);
@@ -77,6 +79,7 @@ export const install = (VueOrApp: any, options: CoreOptions) => {
   // Vue 3 与 Vue 2 的不同处理
   const isVue3 = VueOrApp.version && VueOrApp.version.startsWith("3");
 
+  // 将 tracker 挂载到 Vue 实例上
   if (isVue3) {
     VueOrApp.config.globalProperties.$tracker = core.tracker;
   } else {

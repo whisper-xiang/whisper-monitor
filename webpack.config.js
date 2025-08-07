@@ -29,5 +29,5 @@ module.exports = {
       },
     ],
   },
-  mode: "production", // 生产环境打包
+  mode: "development", // 生产环境打包
 };

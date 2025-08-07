@@ -1,16 +1,12 @@
 import { EventTypes, ErrorTypes, CollectedType, Plugin } from "@/types";
 import { parseStackFrames } from "./helpers";
-
-interface ResourceTarget {
-  src?: string;
-  href?: string;
-  localName?: string;
-}
+import ErrorStackParser from "error-stack-parser";
+import { _global } from "@/utils";
 
 const jsErrorPlugin: Plugin = {
   name: "jsErrorPlugin",
   observer(emit: (data: CollectedType) => void) {
-    window.addEventListener(
+    _global.addEventListener(
       "error",
       (e: ErrorEvent) => {
         console.log(e, "jsErrorPluginjsErrorPluginjsErrorPlugin");
@@ -26,56 +22,55 @@ const jsErrorPlugin: Plugin = {
     );
   },
   watcher(collectedData: CollectedType) {
-    const { stkLimit = 5 } = this.options?.codeErrorOptions;
-    const { type, data } = collectedData;
-    const { localName, src, href } = (data?.target as ResourceTarget) || {};
-
-    // 资源加载错误
-    if (localName) {
-      const resourceData = {
-        source: localName,
-        href: src || href,
-      };
-      // 上报用户行为栈
-      this.breadcrumb.unshift({
-        type: type,
-        category: ErrorTypes.RESOURCE_ERROR,
-        data: resourceData,
-        msg: `Unable to load "${resourceData.href}"`,
-        t: +new Date(),
-      });
-      return {
-        type: type,
-        category: ErrorTypes.RESOURCE_ERROR,
-        message: `Unable to load "${resourceData.href}"`,
-        resource: resourceData,
-      };
-    }
+    const stkLimit = this.options?.codeErrorOptions?.stkLimit || 5;
+    const { type, data: ev } = collectedData;
+    const target = ev.target;
 
     // 脚本错误
-    const { message: msg, error } = data;
-    console.log(data, collectedData, "datadatadata");
-    this.breadcrumb.unshift({
-      type: type,
-      message: error?.message || msg,
-      stack: error?.stack,
-    });
+    if (!target || (ev.target && !ev.target.localName)) {
+      // vue和react捕获的报错使用ev解析，异步错误使用ev.error解析
+      const stackFrames = ErrorStackParser.parse(!target ? ev : ev.error);
+      const stackFrame = stackFrames.slice(0, stkLimit);
+      const { fileName, columnNumber, lineNumber } = stackFrame[0] || {};
 
-    const frames = parseStackFrames(error, stkLimit);
-    const stk = frames.map(
-      ({ lineno: lin, colno: col, filename: file, functionName: fn }) => ({
-        lin,
-        col,
-        file,
-        fn,
-      })
-    );
+      const reportData = {
+        type,
+        category: ErrorTypes.JS_ERROR,
+        data: {
+          message: ev.message,
+          fileName,
+          line: lineNumber,
+          column: columnNumber,
+          stack: stackFrame,
+        },
+        t: +new Date(),
+      };
 
-    return {
-      type: EventTypes.ERROR,
-      message: error?.message || msg,
-      stack: stk,
-    };
+      // 上报用户行为栈
+      this.breadcrumb.unshift(reportData);
+      return reportData;
+    }
+
+    // 资源加载报错
+    if (target?.localName) {
+      const resourceData = {
+        source: target.localName,
+        href: target.src || target.href,
+      };
+
+      const reportData = {
+        type: type,
+        category: ErrorTypes.RESOURCE_ERROR,
+        data: {
+          message: `Unable to load "${resourceData.href}"`,
+          resource: resourceData,
+        },
+        t: +new Date(),
+      };
+      // 上报用户行为栈
+      this.breadcrumb.unshift(reportData);
+      return reportData;
+    }
   },
 };
 
