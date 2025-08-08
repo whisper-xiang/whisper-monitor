@@ -1,8 +1,6 @@
-import { EventTypes } from "./constants";
-
 export interface BreadcrumbItem {
   t: number;
-  type: EventTypes;
+  type: string;
   data: any;
   [key: string]: any;
 }

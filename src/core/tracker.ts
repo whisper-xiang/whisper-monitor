@@ -153,7 +153,7 @@ export class Tracker {
   // 附加数据
   private attach(data: ReportData<any>) {
     // 判断是否启用了行为记录功能
-    if (!this.options?.breadcrumbOptions?.enable) {
+    if (this.options?.breadcrumbOptions?.enable) {
       const excludeBreadcrumb = [
         EventTypes.PERFORMANCE,
         EventTypes.RECORD,
@@ -163,7 +163,7 @@ export class Tracker {
         data.breadcrumb = this.breadcrumb.getStack(); // 获取用户行为栈
       }
     }
-
+    console.log(data, "data");
     // 附加全局数据，比如设备信息、用户信息等
     Object.assign(data, this.options?.reportOptions?.globalData || {});
     // 附加时间戳

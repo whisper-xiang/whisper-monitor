@@ -23,6 +23,9 @@ const app = createApp(App);
 const { clickPlugin, jsErrorPlugin } = window.WhisperMonitor?.plugins ?? {};
 app.use(router);
 app.use(window.WhisperMonitor, {
+  breadcrumbOptions: {
+    enable: true,
+  },
   reportOptions: {
     url: "http://localhost:8090/reportData",
     method: "xhr",

@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <button @click="handleClick">点击</button>
+    <button @click="handleClick">自定义上报</button>
   </div>
 </template>
 <script setup lang="ts">

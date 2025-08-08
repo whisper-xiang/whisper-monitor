@@ -13,6 +13,21 @@ export enum EventTypes {
   WHITE_SCREEN = 11, // 白屏
 }
 
+export const EventTypesMap = {
+  [EventTypes.CUSTOMER]: "customer",
+  [EventTypes.LIFECYCLE]: "lifecycle",
+  [EventTypes.ERROR]: "error",
+  [EventTypes.PERFORMANCE]: "performance",
+  [EventTypes.CLICK]: "click",
+  [EventTypes.RECORD]: "record",
+  [EventTypes.XHR]: "xhr",
+  [EventTypes.API]: "api",
+  [EventTypes.PROMISE]: "promise",
+  [EventTypes.HASH]: "hash",
+  [EventTypes.HISTORY]: "history",
+  [EventTypes.WHITE_SCREEN]: "whiteScreen",
+};
+
 export enum LifecycleTypes {
   PAGE_VIEW = 0, // 页面浏览
   PAGE_HIDE, // 页面隐藏
@@ -29,4 +44,17 @@ export enum ErrorTypes {
   JS_ERROR, // JS 错误
   API_ERROR, // API 错误
   UNKNOWN_ERROR, // 未知错误
+}
+
+export const ErrorTypesMap = {
+  [ErrorTypes.RESOURCE_ERROR]: "resourceError",
+  [ErrorTypes.JS_ERROR]: "jsError",
+  [ErrorTypes.API_ERROR]: "apiError",
+  [ErrorTypes.UNKNOWN_ERROR]: "unknownError",
+};
+
+export enum LogLevel {
+  INFO = "info",
+  WARNING = "warning",
+  ERROR = "error",
 }

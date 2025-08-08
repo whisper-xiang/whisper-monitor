@@ -41,7 +41,15 @@ export class Core {
         if (!pluginData) {
           return;
         }
+
+        // 先上报数据
         await this.tracker.report(pluginData);
+
+        // 上报成功后再添加到面包屑，避免循环引用
+        // if (this.breadcrumb && pluginData) {
+        //   this.breadcrumb.unshift(pluginData);
+        // }
+
         console.log("上报成功", this.breadcrumb);
       };
 

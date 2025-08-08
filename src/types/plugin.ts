@@ -1,5 +1,4 @@
 import { Core } from "..";
-import { EventTypes } from "./constants";
 
 export interface Plugin {
   name: string;
@@ -8,7 +7,7 @@ export interface Plugin {
 }
 
 export interface CollectedType {
-  type: EventTypes;
+  type: string;
   data: ErrorEvent | MouseEvent | any;
   [key: string]: any;
 }

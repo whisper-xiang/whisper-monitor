@@ -1,5 +1,10 @@
-import { EventTypes, ErrorTypes, CollectedType, Plugin } from "@/types";
-import { parseStackFrames } from "./helpers";
+import {
+  EventTypes,
+  ErrorTypes,
+  CollectedType,
+  Plugin,
+  EventTypesMap,
+} from "@/types";
 import ErrorStackParser from "error-stack-parser";
 import { _global } from "@/utils";
 
@@ -9,12 +14,10 @@ const jsErrorPlugin: Plugin = {
     _global.addEventListener(
       "error",
       (e: ErrorEvent) => {
-        console.log(e, "jsErrorPluginjsErrorPluginjsErrorPlugin");
-
         // preventDefault 会导致报错停止流转
         // e.preventDefault();
         emit({
-          type: EventTypes.ERROR,
+          type: EventTypesMap[EventTypes.ERROR],
           data: e,
         });
       },
@@ -46,8 +49,7 @@ const jsErrorPlugin: Plugin = {
         t: +new Date(),
       };
 
-      // 上报用户行为栈
-      this.breadcrumb.unshift(reportData);
+      // 先返回数据，让上报流程完成后再添加到面包屑
       return reportData;
     }
 
@@ -67,8 +69,7 @@ const jsErrorPlugin: Plugin = {
         },
         t: +new Date(),
       };
-      // 上报用户行为栈
-      this.breadcrumb.unshift(reportData);
+      // 先返回数据，让上报流程完成后再添加到面包屑
       return reportData;
     }
   },

@@ -1,11 +1,13 @@
 import { BreadcrumbItem, CoreOptions } from "@/types";
 
+const DEFAULT_MAX_BREADCRUMBS = 10;
 export class Breadcrumb {
   private readonly maxBreadcrumbs: number;
   private stack: BreadcrumbItem[] = [];
 
   constructor(options: CoreOptions) {
-    this.maxBreadcrumbs = options?.breadcrumbOptions?.maxBreadcrumbs || 10;
+    this.maxBreadcrumbs =
+      options?.breadcrumbOptions?.maxBreadcrumbs || DEFAULT_MAX_BREADCRUMBS;
     this.stack = [];
   }
   /**
