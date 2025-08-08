@@ -17,7 +17,6 @@ const clickPlugin: Plugin = {
   },
   watcher(this: Core, collectedData: CollectedType) {
     const { type, data } = collectedData;
-    console.log(data, "datadata");
     this.breadcrumb.unshift({
       type: type,
       t: +new Date(),

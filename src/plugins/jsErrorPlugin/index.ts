@@ -4,6 +4,7 @@ import {
   CollectedType,
   Plugin,
   EventTypesMap,
+  ErrorTypesMap,
 } from "@/types";
 import ErrorStackParser from "error-stack-parser";
 import { _global } from "@/utils";
@@ -38,7 +39,7 @@ const jsErrorPlugin: Plugin = {
 
       const reportData = {
         type,
-        category: ErrorTypes.JS_ERROR,
+        category: ErrorTypesMap[ErrorTypes.JS_ERROR],
         data: {
           message: ev.message,
           fileName,
@@ -61,8 +62,8 @@ const jsErrorPlugin: Plugin = {
       };
 
       const reportData = {
-        type: type,
-        category: ErrorTypes.RESOURCE_ERROR,
+        type,
+        category: ErrorTypesMap[ErrorTypes.RESOURCE_ERROR],
         data: {
           message: `Unable to load "${resourceData.href}"`,
           resource: resourceData,

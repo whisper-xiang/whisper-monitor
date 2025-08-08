@@ -44,6 +44,7 @@ export enum ErrorTypes {
   JS_ERROR, // JS 错误
   API_ERROR, // API 错误
   UNKNOWN_ERROR, // 未知错误
+  UNHANDLED_REJECTION, // 未处理的 Promise 错误
 }
 
 export const ErrorTypesMap = {
@@ -51,6 +52,7 @@ export const ErrorTypesMap = {
   [ErrorTypes.JS_ERROR]: "jsError",
   [ErrorTypes.API_ERROR]: "apiError",
   [ErrorTypes.UNKNOWN_ERROR]: "unknownError",
+  [ErrorTypes.UNHANDLED_REJECTION]: "unhandledRejection",
 };
 
 export enum LogLevel {

@@ -20,7 +20,8 @@ const app = createApp(App);
 //   console.log(err, vm, info);
 // };
 
-const { clickPlugin, jsErrorPlugin } = window.WhisperMonitor?.plugins ?? {};
+const { clickPlugin, jsErrorPlugin, promiseErrorPlugin } =
+  window.WhisperMonitor?.plugins ?? {};
 app.use(router);
 app.use(window.WhisperMonitor, {
   breadcrumbOptions: {
@@ -41,7 +42,7 @@ app.use(window.WhisperMonitor, {
       },
     },
   },
-  plugins: [clickPlugin, jsErrorPlugin],
+  plugins: [clickPlugin, jsErrorPlugin, promiseErrorPlugin],
 });
 
 // app.use(plugin, { message: "Custom Plugin Initialized!" });
